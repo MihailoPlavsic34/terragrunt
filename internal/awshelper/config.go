@@ -125,26 +125,12 @@ func CreateAwsConfig(
 		return aws.Config{}, errors.Errorf("Error loading AWS config: %w", err)
 	}
 
-	if createCredentialsFromEnv(opts) != nil {
-		return cfg, nil
-	}
-
 	iamRoleOptions := getMergedIAMRoleOptions(awsCfg, opts)
-	if iamRoleOptions.RoleARN == "" {
-		return cfg, nil
-	}
-
-	if iamRoleOptions.WebIdentityToken != "" {
-		l.Debugf("Assuming role %s using WebIdentity token", iamRoleOptions.RoleARN)
-		cfg.Credentials = getWebIdentityCredentialsFromIAMRoleOptions(cfg, iamRoleOptions)
-
-		return cfg, nil
-	}
-
 	l.Debugf("Assuming role %s", iamRoleOptions.RoleARN)
 	cfg.Credentials = getSTSCredentialsFromIAMRoleOptions(cfg, iamRoleOptions, getExternalID(awsCfg))
 
 	return cfg, nil
+
 }
 
 // getRegionFromEnv extracts region from environment variables in opts
